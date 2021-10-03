@@ -29,7 +29,7 @@ config_integration.trace_integrations(['logging'])
 config_integration.trace_integrations(['requests'])
 
 # Instrumentation key
-instr_key = os.environ['INSTR_KEY'] or ''
+instr_key = 'InstrumentationKey=42700cf2-e804-4766-af46-af449973ae36'
 
 # Logging
 logger = logging.getLogger(__name__)
@@ -58,7 +58,7 @@ app = Flask(__name__)
 # Requests
 middleware = FlaskMiddleware(
  app,
- exporter=AzureExporter(connection_string="InstrumentationKey=[your-guid]"),
+ exporter=AzureExporter(connection_string=instr_key),
  sampler=ProbabilitySampler(rate=1.0)
 )
 
@@ -102,9 +102,10 @@ def index():
 
         # Get current values
         vote1 = r.get(button1).decode('utf-8')
-        # TODO: use tracer object to trace cat vote (???)
+        tracer.span(name="Cats Vote")
+
         vote2 = r.get(button2).decode('utf-8')
-        # TODO: use tracer object to trace dog vote (???)
+        tracer.span(name="Dogs Vote")
 
         # Return index with values
         return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
@@ -131,9 +132,7 @@ def index():
             # Insert vote result into DB
             animal_type = request.form['vote']
             r.incr(animal_type, 1)
-            # Use tracer object to trace cat and dogs vote
-            with tracer.span(name=f"{animal_type} Vote"):
-                logger.info(f'New {animal_type} vote')
+            logger.info(f'New {animal_type} vote')
 
             # Get current values
             vote1 = r.get(button1).decode('utf-8')
