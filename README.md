@@ -165,17 +165,32 @@ The script above will take a few minutes to create VMSS and related resources. O
 2. Once you log in to one of the VMSS instances, deploy the application manually: 
       ```bash
       # Clone locally
-      git clone https://github.com/<GITHUB_USERNAME>/nd081-c4-azure-performance-project-starter.git
+      git clone https://github.com/camilaagw/nd081-c4-azure-performance-project-starter.git
       cd nd081-c4-azure-performance-project-starter
       # Make sure, you aer in the master branch
       git checkout Deploy_to_VMSS
       # Update sudo
+      sudo apt update
       # Install Python 3.7
+      sudo apt install python3.7
+      python3 --version
       # Install pip
-      # Install and start Redis server. Refer https://redis.io/download for help. 
-      # Clone and navigate inside the project repo. We need the Flask frontend code
+      sudo -H pip3 install --upgrade pip
+      # Install and start Redis server. Refer https://redis.io/download for help.
+      wget https://download.redis.io/releases/redis-6.2.4.tar.gz 
+      tar xzf redis-6.2.4.tar.gz
+      cd redis-6.2.4
+      make
+      #Ping your Redis server to verify if it is running. It will return "PONG"
+      redis-cli ping
+      #The server will start after make. Otherwise, use
+      src/redis-server
+      # Navigate inside the root directory. We need the Flask frontend code
+      cd ..
       # Install dependencies - necessary Python packages - redis, opencensus, opencensus-ext-azure, opencensus-ext-flask, flask
+      pip install -r requirements.txt
       # Run the app
+      python3 azure-vote/main.py
       ```
 
 3. After successful deployment and starting the application, copy the VMSS' public IP address and paste it in the browser. You will see the voting application up and running. If it still shows **502 Bad Gateway nginx/1.14.0 (Ubuntu)** message, it means either of the following:
@@ -196,7 +211,7 @@ The script above will take a few minutes to create VMSS and related resources. O
 
 1. For the VM Scale Set, create an autoscaling rule based on metrics.
 
-2. Trigger the conditions for the rule, causing an autoscaling event.
+2. Trigger the conditions for the rule, causing an autoscaling event. Nice tutorial [here](https://docs.microsoft.com/en-us/azure/virtual-machine-scale-sets/tutorial-autoscale-cli)
 
 3. When complete, enable manual scale.
 
@@ -284,7 +299,7 @@ The script above will take a few minutes to create VMSS and related resources. O
       ```bash
       # Assuming the acdnd-c4-project resource group is still avaiable with you
       # Create a resource group
-      az group create --name acdnd-c4-project --location westus2
+      az group create --name acdnd-c4-project --location westus
       # ACR name should not have upper case letter
       az acr create --resource-group acdnd-c4-project --name myacr202106 --sku Basic
       # Log in to the ACR
